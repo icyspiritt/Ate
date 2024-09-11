@@ -1,0 +1,32 @@
+from discord.ext import commands
+import discord
+
+intents = discord.Intents.default()
+intents.message_content = True
+token = ""
+bot = commands.Bot(command_prefix= "/", intents=intents)
+
+food_options = {
+    'desayuno': ['huevos revueltos', 'avena', 'tostadas con aguacate', 'smoothie de frutas'],
+    'almuerzo': ['ensalada de pollo', 'pasta con salsa de tomate', 'sandwich de jamón y queso', 'sopa de verduras'],
+    'cena': ['pollo al horno', 'pescado a la plancha', 'ensalada César', 'arroz con vegetales'],
+    'snack': ['fruta fresca', 'yogur con granola', 'barra de cereales', 'frutos secos']
+}
+
+
+# Comando para preguntar por el tipo de comida
+@bot.command(name='comida')
+async def comida(ctx):
+    await ctx.send("¿Qué tipo de comida te gustaría? (desayuno, almuerzo, cena, snack)")
+
+    def check(m):
+        return m.author == ctx.author and m.channel == ctx.channel and m.content.lower() in food_options
+
+    try:
+        msg = await bot.wait_for('message', check=check, timeout=30.0)
+        food_type = msg.content.lower()
+        await ctx.send(f"Para {food_type}, te recomiendo: {', '.join(food_options[food_type])}.")
+    except:
+        await ctx.send("No recibí una respuesta válida a tiempo. Inténtalo de nuevo.")
+
+bot.run()
